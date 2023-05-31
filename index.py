@@ -1,6 +1,7 @@
 from xml.dom import minidom
 import zipfile
 import csv
+from datetime import datetime
 
 notas_zip = "nfse.zip"
 
@@ -26,18 +27,22 @@ with zipfile.ZipFile(notas_zip, 'r') as zip_ref:
             baseCalculo = float(xml.getElementsByTagName("BaseCalculo")[0].firstChild.data)
             valorLiquidoNfse = float(xml.getElementsByTagName("ValorLiquidoNfse")[0].firstChild.data)
 
-            # Verifica se a competência já está add
-            if competencia in totalCompetencia:
-                # atualiza os totais da competência que já existe (competencia1 = competencia 1 + competencia 2)
-                totalCompetencia[competencia]["ValorServicos"] += valorServicos
-                totalCompetencia[competencia]["ValorIss"] += valorIss
-                totalCompetencia[competencia]["ValorIssRetido"] += issRetido
-                totalCompetencia[competencia]["OutrasRetencoes"] += outrasRetencoes
-                totalCompetencia[competencia]["BaseCalculo"] += baseCalculo
-                totalCompetencia[competencia]["ValorLiquidoNfse"] += valorLiquidoNfse
+            #separa as notas por data
+            competencia_date = datetime.strptime(competencia, "%Y-%m-%d")
+            competencia_mes = competencia_date.strftime("%Y-%m")
+
+            # Verifica se a competência já está adicionada
+            if competencia_mes in totalCompetencia:
+                # Atualiza os totais da competência que já existe
+                totalCompetencia[competencia_mes]["ValorServicos"] += valorServicos
+                totalCompetencia[competencia_mes]["ValorIss"] += valorIss
+                totalCompetencia[competencia_mes]["ValorIssRetido"] += issRetido
+                totalCompetencia[competencia_mes]["OutrasRetencoes"] += outrasRetencoes
+                totalCompetencia[competencia_mes]["BaseCalculo"] += baseCalculo
+                totalCompetencia[competencia_mes]["ValorLiquidoNfse"] += valorLiquidoNfse
             else:
-                # add a competência ao 'dicionário' com os totais iniciais
-                totalCompetencia[competencia] = {
+                # add a competência ao dicionário com os totais iniciais
+                totalCompetencia[competencia_mes] = {
                     "ValorServicos": valorServicos,
                     "ValorIss": valorIss,
                     "ValorIssRetido": issRetido,
@@ -52,9 +57,9 @@ with open("notas_fiscais.csv", 'w', encoding='utf-8', newline='') as f:
     field = ["Competencia", "ValorServicos", "ValorIss", "ValorIssRetido", "OutrasRetencoes", "BaseCalculo", "ValorLiquidoNfse"]
     writer.writerow(field)
 
-    for competencia, totais in totalCompetencia.items():
+    for competencia_mes, totais in totalCompetencia.items():
         row = [
-            competencia,
+            competencia_mes,
             totais["ValorServicos"],
             totais["ValorIss"],
             totais["ValorIssRetido"],
@@ -62,4 +67,4 @@ with open("notas_fiscais.csv", 'w', encoding='utf-8', newline='') as f:
             totais["BaseCalculo"],
             totais["ValorLiquidoNfse"]
         ]
-    writer.writerow(row)
+        writer.writerow(row)
