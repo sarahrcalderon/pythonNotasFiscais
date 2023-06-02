@@ -56,15 +56,23 @@ with open("notas_fiscais.csv", 'w', encoding='utf-8', newline='') as f:
     writer = csv.writer(f)
     field = ["Competencia", "ValorServicos", "ValorIss", "ValorIssRetido", "OutrasRetencoes", "BaseCalculo", "ValorLiquidoNfse"]
     writer.writerow(field)
-
+    
+    #formata os caracteres dos resultados
     for competencia_mes, totais in totalCompetencia.items():
+        valor_servicos = "{:.2f}".format(totais["ValorServicos"])
+        valor_iss = "{:.7}".format(totais["ValorIss"])
+        iss_retido = "{:.2f}".format(totais["ValorIssRetido"])
+        outras_retencoes = "{:.2f}".format(totais["OutrasRetencoes"])
+        base_calculo = "{:.2f}".format(totais["BaseCalculo"])
+        valor_nfse = "{:.2f}".format(totais["ValorLiquidoNfse"])
+
         row = [
             competencia_mes,
-            totais["ValorServicos"],
-            totais["ValorIss"],
-            totais["ValorIssRetido"],
-            totais["OutrasRetencoes"],
-            totais["BaseCalculo"],
-            totais["ValorLiquidoNfse"]
+            valor_servicos,
+            valor_iss,
+            iss_retido,
+            outras_retencoes,
+            base_calculo,
+            valor_nfse
         ]
         writer.writerow(row)
